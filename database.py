@@ -6,7 +6,7 @@ def conectar_bd():
         port=3306,
         user="root",
         password="",
-        database="hojadevida"
+        database="hojas_de_vida"
     )
 
     return conexion
