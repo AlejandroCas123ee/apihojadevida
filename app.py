@@ -694,6 +694,145 @@ def consultar_cursoshv(id):
         "hoja_de_vida_id": id,
         "CURSOS": cursos
     }
+    
+    
+    
+    @app.route("/api/CURSOS/<int:id>", methods=["GET"])
+def consultar_curso(id):
+
+    conec = conectar_bd()
+    cursor = conec.cursor(dictionary=True)
+
+    sql = """SELECT * FROM cursos WHERE id = %s"""
+
+    cursor.execute(sql, (id,))
+
+    curso = cursor.fetchone()
+
+    cursor.close()
+    conec.close()
+
+    if curso is None:
+        return {
+            "mensaje": "Curso no encontrada"
+        }, 404
+
+    return curso, 200
+
+
+@app.route("/api/CURSOS/<int:id_CUR>", methods=["PUT"])
+def actualizar_curso(id_CUR):
+
+    conec = conectar_bd()
+    cursor = conec.cursor()
+
+    datos = request.json
+
+    nombre = datos.get("nombre")
+
+    sql = """UPDATE cursos
+             SET nombre = %s
+             WHERE id = %s"""
+
+    cursor.execute(
+        sql,
+        (
+            nombre,
+            id_CUR
+        )
+    )
+
+    conec.commit()
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "mensaje": "Curso actualizado",
+        "id": id_CUR
+    }, 200
+
+
+@app.route("/api/CURSOS/<int:id_CUR>", methods=["DELETE"])
+def eliminar_curso(id_CUR):
+
+    conec = conectar_bd()
+    cursor = conec.cursor()
+
+    sql = """DELETE FROM cursos
+             WHERE id = %s"""
+
+    cursor.execute(sql, (id_CUR,))
+
+    conec.commit()
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "mensaje": "Curso Eliminado",
+        "id": id_CUR
+    }, 200
+
+
+@app.route("/api/HOJAS_VIDA/<int:id>", methods=["GET"])
+def consultar_hoja_vida_completa(id):
+
+    conec = conectar_bd()
+    cursor = conec.cursor(dictionary=True)
+
+    sql_hv = """SELECT * FROM hojas_vida WHERE id = %s"""
+
+    cursor.execute(sql_hv, (id,))
+
+    hoja_vida = cursor.fetchone()
+
+    if hoja_vida is None:
+
+        cursor.close()
+        conec.close()
+
+        return {
+            "mensaje": "Hoja de vida no encontrada"
+        }, 404
+
+    sql_estudios = """SELECT * FROM estudios
+                      WHERE hoja_vida_id = %s"""
+
+    cursor.execute(sql_estudios, (id,))
+
+    estudios = cursor.fetchall()
+
+    sql_experiencias = """SELECT * FROM experiencias
+                          WHERE hoja_vida_id = %s"""
+
+    cursor.execute(sql_experiencias, (id,))
+
+    experiencias = cursor.fetchall()
+
+    sql_cursos = """SELECT * FROM cursos
+                    WHERE hoja_vida_id = %s"""
+
+    cursor.execute(sql_cursos, (id,))
+
+    cursos = cursor.fetchall()
+
+    cursor.close()
+    conec.close()
+
+    respuesta_completa = {
+        "hoja_de_vida": hoja_vida,
+        "estudios": estudios,
+        "experiencias": experiencias,
+        "cursos": cursos
+    }
+
+    return respuesta_completa, 200
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
 
 
 
