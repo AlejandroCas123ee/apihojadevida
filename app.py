@@ -374,4 +374,154 @@ def eliminar_estudio(id):
         "id": id
     }, 200
 
+@app.route("/api/EXPERIENCIAS/<int:id>/EXPERIENCIAS", methods=["POST"])
+def registrar_experiencia(id):
+
+    conec = conectar_bd()
+    cursor = conec.cursor()
+
+    datos = request.json
+
+    empresa = datos.get("empresa")
+    cargo = datos.get("cargo")
+    tiempo = datos.get("tiempo")
+    funciones = datos.get("funciones")
+
+    sql = """INSERT INTO experiencias
+             (empresa, cargo, tiempo, funciones, hoja_vida_id)
+             VALUES (%s, %s, %s, %s, %s)"""
+
+    cursor.execute(
+        sql,
+        (
+            empresa,
+            cargo,
+            tiempo,
+            funciones,
+            id
+        )
+    )
+
+    conec.commit()
+
+    id_experiencia = cursor.lastrowid
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "mensaje": "Experiencia registrada para la hoja de vida",
+        "id": id_experiencia
+    }
+
+
+@app.route("/api/HOJAS_VIDA/<int:id>/EXPERIENCIAS", methods=["GET"])
+def consultar_experienciashv(id):
+
+    conec = conectar_bd()
+    cursor = conec.cursor(dictionary=True)
+
+    sql = """SELECT id, hoja_vida_id, empresa, cargo, tiempo, funciones
+             FROM experiencias
+             WHERE hoja_vida_id = %s"""
+
+    cursor.execute(sql, (id,))
+
+    experiencias = cursor.fetchall()
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "hoja_de_vida_id": id,
+        "experiencias": experiencias
+    }
+
+
+@app.route("/api/EXPERIENCIAS/<int:id>", methods=["GET"])
+def consultar_experiencia(id):
+
+    conec = conectar_bd()
+    cursor = conec.cursor(dictionary=True)
+
+    sql = """SELECT * FROM experiencias WHERE id = %s"""
+
+    cursor.execute(sql, (id,))
+
+    experiencia = cursor.fetchone()
+
+    cursor.close()
+    conec.close()
+
+    if experiencia is None:
+        return {
+            "mensaje": "Experiencia no encontrada"
+        }, 404
+
+    return experiencia, 200
+
+
+@app.route("/api/EXPERIENCIAS/<int:id_hv>/<int:id_exp>", methods=["PUT"])
+def actualizar_experiencia(id_hv, id_exp):
+
+    conec = conectar_bd()
+    cursor = conec.cursor()
+
+    datos = request.json
+
+    sql = """UPDATE experiencias
+             SET empresa = %s,
+                 cargo = %s,
+                 tiempo = %s,
+                 funciones = %s
+             WHERE id = %s
+             AND hoja_vida_id = %s"""
+
+    cursor.execute(
+        sql,
+        (
+            datos.get("empresa"),
+            datos.get("cargo"),
+            datos.get("tiempo"),
+            datos.get("funciones"),
+            id_exp,
+            id_hv
+        )
+    )
+
+    conec.commit()
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "mensaje": "Experiencia actualizada",
+        "id": id_exp,
+        "hoja_vida_id": id_hv
+    }
+
+
+@app.route("/api/EXPERIENCIAS/<int:id_hv>/<int:id_exp>", methods=["DELETE"])
+def eliminar_experiencia(id_hv, id_exp):
+
+    conec = conectar_bd()
+    cursor = conec.cursor()
+
+    sql = """DELETE FROM experiencias
+             WHERE id = %s
+             AND hoja_vida_id = %s"""
+
+    cursor.execute(sql, (id_exp, id_hv))
+
+    conec.commit()
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "mensaje": "Experiencia eliminada",
+        "id": id_exp,
+        "hoja_vida_id": id_hv
+    }, 200
+
 
