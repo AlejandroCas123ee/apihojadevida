@@ -203,10 +203,7 @@ def obtener_hojasvidaid(id):
             "mensaje": "Hoja de vida no encontrada"
         }, 404
 
-    return {
-        "mensaje": "Hoja de vida encontrada",
-        "id": id
-    }
+    return hoja
 
 
 @app.route("/api/hojasdevida")
@@ -225,6 +222,7 @@ def obtener_hojasvida():
     conec.close()
 
     return hojasdevida
+
 
 @app.route("/api/HOJAS_VIDA/<int:id>/estudios", methods=["GET"])
 def consultar_estudios(id):
@@ -373,6 +371,7 @@ def eliminar_estudio(id):
         "mensaje": "Estudio eliminado",
         "id": id
     }, 200
+
 
 @app.route("/api/EXPERIENCIAS/<int:id>/EXPERIENCIAS", methods=["POST"])
 def registrar_experiencia(id):
@@ -523,8 +522,9 @@ def eliminar_experiencia(id_hv, id_exp):
         "id": id_exp,
         "hoja_vida_id": id_hv
     }, 200
-    
-    @app.route("/api/HABILIDADES/<int:id_exp>", methods=["POST"])
+
+
+@app.route("/api/HABILIDADES/<int:id_exp>", methods=["POST"])
 def registrar_habilidad(id_exp):
 
     conec = conectar_bd()
@@ -694,10 +694,9 @@ def consultar_cursoshv(id):
         "hoja_de_vida_id": id,
         "CURSOS": cursos
     }
-    
-    
-    
-    @app.route("/api/CURSOS/<int:id>", methods=["GET"])
+
+
+@app.route("/api/CURSOS/<int:id>", methods=["GET"])
 def consultar_curso(id):
 
     conec = conectar_bd()
@@ -832,7 +831,3 @@ def consultar_hoja_vida_completa(id):
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-
