@@ -225,3 +225,153 @@ def obtener_hojasvida():
     conec.close()
 
     return hojasdevida
+
+@app.route("/api/HOJAS_VIDA/<int:id>/estudios", methods=["GET"])
+def consultar_estudios(id):
+
+    conec = conectar_bd()
+    cursor = conec.cursor(dictionary=True)
+
+    sql = """SELECT id, hoja_vida_id, nivel, institucion, titulo,
+             anio_graduacion
+             FROM estudios
+             WHERE hoja_vida_id = %s"""
+
+    cursor.execute(sql, (id,))
+
+    estudios = cursor.fetchall()
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "hoja_de_vida_id": id,
+        "estudios": estudios
+    }
+
+
+@app.route("/api/estudios/<int:id>/estudios", methods=["POST"])
+def registrar_estudio(id):
+
+    conec = conectar_bd()
+    cursor = conec.cursor()
+
+    datos = request.json
+
+    nivel = datos.get("nivel")
+    institucion = datos.get("institucion")
+    titulo = datos.get("titulo")
+    anio_graduacion = datos.get("anio_graduacion")
+
+    sql = """INSERT INTO estudios
+             (nivel, institucion, titulo, anio_graduacion, hoja_vida_id)
+             VALUES (%s, %s, %s, %s, %s)"""
+
+    cursor.execute(
+        sql,
+        (
+            nivel,
+            institucion,
+            titulo,
+            anio_graduacion,
+            id
+        )
+    )
+
+    conec.commit()
+
+    id_estudio = cursor.lastrowid
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "mensaje": "Estudio registrado para la hoja de vida",
+        "id": id_estudio
+    }
+
+
+@app.route("/api/estudios/<int:id>", methods=["GET"])
+def consultar_estudio(id):
+
+    conec = conectar_bd()
+    cursor = conec.cursor(dictionary=True)
+
+    sql = """SELECT id, hoja_vida_id, nivel, institucion, titulo,
+             anio_graduacion
+             FROM estudios
+             WHERE id = %s"""
+
+    cursor.execute(sql, (id,))
+
+    estudio = cursor.fetchone()
+
+    cursor.close()
+    conec.close()
+
+    if estudio is None:
+        return {
+            "mensaje": "Estudio no encontrado"
+        }, 404
+
+    return estudio, 200
+
+
+@app.route("/api/estudios/<int:id>/estudios", methods=["PUT"])
+def actualizar_estudio(id):
+
+    conec = conectar_bd()
+    cursor = conec.cursor()
+
+    datos = request.json
+
+    sql = """UPDATE estudios
+             SET nivel = %s,
+                 institucion = %s,
+                 titulo = %s,
+                 anio_graduacion = %s
+             WHERE id = %s"""
+
+    cursor.execute(
+        sql,
+        (
+            datos.get("nivel"),
+            datos.get("institucion"),
+            datos.get("titulo"),
+            datos.get("anio_graduacion"),
+            id
+        )
+    )
+
+    conec.commit()
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "mensaje": "Estudio actualizado",
+        "id": id
+    }
+
+
+@app.route("/api/estudios/<int:id>", methods=["DELETE"])
+def eliminar_estudio(id):
+
+    conec = conectar_bd()
+    cursor = conec.cursor()
+
+    sql = "DELETE FROM estudios WHERE id = %s"
+
+    cursor.execute(sql, (id,))
+
+    conec.commit()
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "mensaje": "Estudio eliminado",
+        "id": id
+    }, 200
+
+
