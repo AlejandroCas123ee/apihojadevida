@@ -523,5 +523,177 @@ def eliminar_experiencia(id_hv, id_exp):
         "id": id_exp,
         "hoja_vida_id": id_hv
     }, 200
+    
+    @app.route("/api/HABILIDADES/<int:id_exp>", methods=["POST"])
+def registrar_habilidad(id_exp):
+
+    conec = conectar_bd()
+    cursor = conec.cursor()
+
+    datos = request.json
+
+    nombre = datos.get("nombre")
+
+    sql = """INSERT INTO habilidades
+             (experiencia_id, nombre)
+             VALUES (%s, %s)"""
+
+    cursor.execute(
+        sql,
+        (
+            id_exp,
+            nombre
+        )
+    )
+
+    conec.commit()
+
+    id_habilidades = cursor.lastrowid
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "mensaje": "Habilidad registrada en la experiencia laboral",
+        "id": id_habilidades,
+        "experiencia_id": id_exp
+    }
+
+
+@app.route("/api/HABILIDADES/<int:id_exp>", methods=["GET"])
+def consultar_habilidades(id_exp):
+
+    conec = conectar_bd()
+    cursor = conec.cursor(dictionary=True)
+
+    sql = """SELECT id, experiencia_id, nombre
+             FROM habilidades
+             WHERE experiencia_id = %s"""
+
+    cursor.execute(sql, (id_exp,))
+
+    habilidades = cursor.fetchall()
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "habilidades": habilidades
+    }
+
+
+@app.route("/api/HABILIDADES/<int:id_habi>", methods=["PUT"])
+def actualizar_habilidad(id_habi):
+
+    conec = conectar_bd()
+    cursor = conec.cursor()
+
+    datos = request.json
+
+    nombre = datos.get("nombre")
+
+    sql = """UPDATE habilidades
+             SET nombre = %s
+             WHERE id = %s"""
+
+    cursor.execute(
+        sql,
+        (
+            nombre,
+            id_habi
+        )
+    )
+
+    conec.commit()
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "mensaje": "Habilidad actualizada",
+        "id": id_habi
+    }, 200
+
+
+@app.route("/api/HABILIDADES/<int:id_habi>", methods=["DELETE"])
+def eliminar_habilidad(id_habi):
+
+    conec = conectar_bd()
+    cursor = conec.cursor()
+
+    sql = """DELETE FROM habilidades
+             WHERE id = %s"""
+
+    cursor.execute(sql, (id_habi,))
+
+    conec.commit()
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "mensaje": "Habilidad Eliminada",
+        "id": id_habi
+    }, 200
+
+
+@app.route("/api/CURSOS/<int:id_hv>", methods=["POST"])
+def registrar_cursos(id_hv):
+
+    conec = conectar_bd()
+    cursor = conec.cursor()
+
+    datos = request.json
+
+    nombre = datos.get("nombre")
+
+    sql = """INSERT INTO cursos
+             (hoja_vida_id, nombre)
+             VALUES (%s, %s)"""
+
+    cursor.execute(
+        sql,
+        (
+            id_hv,
+            nombre
+        )
+    )
+
+    conec.commit()
+
+    id_curso = cursor.lastrowid
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "mensaje": "Curso registrado en la hoja de vida",
+        "id": id_curso,
+        "hoja_vida_id": id_hv
+    }
+
+
+@app.route("/api/HOJAS_VIDA/<int:id>/CURSOS", methods=["GET"])
+def consultar_cursoshv(id):
+
+    conec = conectar_bd()
+    cursor = conec.cursor(dictionary=True)
+
+    sql = """SELECT id, hoja_vida_id, nombre
+             FROM cursos
+             WHERE hoja_vida_id = %s"""
+
+    cursor.execute(sql, (id,))
+
+    cursos = cursor.fetchall()
+
+    cursor.close()
+    conec.close()
+
+    return {
+        "hoja_de_vida_id": id,
+        "CURSOS": cursos
+    }
+
 
 
