@@ -8,10 +8,7 @@ app = Flask(__name__)
 
 # CORS
 
-CORS(app, origins=[
-    "http://localhost:5174",
-    "http://127.0.0.1:5174"
-])
+CORS(app, origins=["http://localhost:5173"])
 
 
 
